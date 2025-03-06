@@ -10,13 +10,21 @@
 <body class="bg-gray-100 flex items-center justify-center h-screen">
     <div class="bg-white p-6 rounded-lg shadow-lg text-center w-96">
         <h1 class="text-2xl font-bold mb-4">Scan Barcode</h1>
+
+        <!-- Scanner Kamera -->
         <div id="reader" class="mb-4"></div>
-        <p class="font-semibold">Hasil:</p>
+        
+        <!-- Upload File QR -->
+        <input type="file" id="qr-file" accept="image/*" class="mb-4 p-2 border rounded">
+        <button onclick="scanImage()" class="bg-blue-500 text-white px-4 py-2 rounded">Upload QR Code</button>
+
+        <!-- Hasil Scan -->
+        <p class="font-semibold mt-4">Hasil:</p>
         <p id="result" class="text-blue-500 font-bold mt-2"></p>
     </div>
 
     <script>
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzt6LZaOIRP86A_rf3fMwlDiT8x0FKCAW72qV3orQPSXHW2yvFGx9uZL22Wy7tCjdh-Pw/exec"; // Ganti dengan URL Apps Script
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzt6LZaOIRP86A_rf3fMwlDiT8x0FKCAW72qV3orQPSXHW2yvFGx9uZL22Wy7tCjdh-Pw/exec; // Ganti dengan URL Apps Script
 
         function sendToGoogleSheet(barcode) {
             fetch(GOOGLE_SHEET_URL, {
@@ -38,6 +46,7 @@
             console.warn(`Scan error: ${error}`);
         }
 
+        // Inisialisasi QR Scanner untuk kamera
         const html5QrcodeScanner = new Html5Qrcode("reader");
         html5QrcodeScanner.start(
             { facingMode: "environment" },
@@ -45,6 +54,24 @@
             onScanSuccess,
             onScanFailure
         ).catch(err => console.error("Error membuka kamera:", err));
+
+        // Fungsi untuk membaca QR Code dari gambar
+        function scanImage() {
+            const fileInput = document.getElementById("qr-file");
+            if (fileInput.files.length == 0) {
+                alert("Pilih gambar QR Code terlebih dahulu!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.scanFile(file, false)
+                .then(decodedText => {
+                    document.getElementById("result").innerText = decodedText;
+                    sendToGoogleSheet(decodedText);
+                })
+                .catch(err => alert("Gagal membaca QR Code dari gambar!"));
+        }
     </script>
 </body>
 </html>

@@ -11,26 +11,26 @@
     <div class="bg-white p-6 rounded-lg shadow-lg text-center w-96">
         <h1 class="text-2xl font-bold mb-4">Scan Barcode</h1>
 
-        <!-- Scanner Kamera -->
+        <!-- Live Scanner -->
         <div id="reader" class="mb-4"></div>
-        
-        <!-- Upload File QR -->
-        <input type="file" id="qr-file" accept="image/*" class="mb-4 p-2 border rounded">
-        <button onclick="scanImage()" class="bg-blue-500 text-white px-4 py-2 rounded">Upload QR Code</button>
 
-        <!-- Hasil Scan -->
-        <p class="font-semibold mt-4">Hasil:</p>
+        <p class="font-semibold">Hasil:</p>
         <p id="result" class="text-blue-500 font-bold mt-2"></p>
+
+        <!-- Upload File QR -->
+        <input type="file" id="qr-file" accept="image/*" class="mt-4 border p-2 rounded">
+        <button onclick="scanImage()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">
+            Upload QR Code
+        </button>
     </div>
 
     <script>
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzt6LZaOIRP86A_rf3fMwlDiT8x0FKCAW72qV3orQPSXHW2yvFGx9uZL22Wy7tCjdh-Pw/exec; // Ganti dengan URL Apps Script
+        const GOOGLE_SHEET_URL = "PASTE_URL_WEB_APP_DI_SINI"; // Ganti dengan URL Apps Script
 
         function sendToGoogleSheet(barcode) {
             fetch(GOOGLE_SHEET_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ barcode: barcode })
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
             })
             .then(response => response.text())
             .then(result => console.log("Google Sheet Update:", result))
@@ -46,7 +46,7 @@
             console.warn(`Scan error: ${error}`);
         }
 
-        // Inisialisasi QR Scanner untuk kamera
+        // 🔥 Jalankan live scanner
         const html5QrcodeScanner = new Html5Qrcode("reader");
         html5QrcodeScanner.start(
             { facingMode: "environment" },
@@ -55,22 +55,27 @@
             onScanFailure
         ).catch(err => console.error("Error membuka kamera:", err));
 
-        // Fungsi untuk membaca QR Code dari gambar
+        // 📸 Upload dan scan QR dari gambar
         function scanImage() {
             const fileInput = document.getElementById("qr-file");
-            if (fileInput.files.length == 0) {
+            if (fileInput.files.length === 0) {
                 alert("Pilih gambar QR Code terlebih dahulu!");
                 return;
             }
 
             const file = fileInput.files[0];
+            console.log("File terpilih:", file); // Debugging
+
             const html5QrCode = new Html5Qrcode("reader");
             html5QrCode.scanFile(file, false)
                 .then(decodedText => {
                     document.getElementById("result").innerText = decodedText;
                     sendToGoogleSheet(decodedText);
                 })
-                .catch(err => alert("Gagal membaca QR Code dari gambar!"));
+                .catch(err => {
+                    console.error("Error membaca QR:", err);
+                    alert("Gagal membaca QR Code! Pastikan format gambar JPG/PNG.");
+                });
         }
     </script>
 </body>

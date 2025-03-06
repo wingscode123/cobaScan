@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Barcode Scanner</title>
+    <script src="https://serratus.github.io/quaggaJS/examples/js/quagga.min.js"></script>
+</head>
+<body>
+    <h2>Scan Barcode</h2>
+    <video id="scanner" autoplay></video>
+    <p>Hasil: <span id="barcode-result"></span></p>
+
+    <script>
+        Quagga.init({
+            inputStream: { type: "LiveStream", target: document.querySelector("#scanner") },
+            decoder: { readers: ["ean_reader", "code_128_reader"] } // Sesuaikan dengan jenis barcode
+        }, function(err) {
+            if (!err) Quagga.start();
+        });
+
+        Quagga.onDetected(function(result) {
+            document.querySelector("#barcode-result").innerText = result.codeResult.code;
+            sendToSpreadsheet(result.codeResult.code); // Kirim ke spreadsheet
+        });
+
+        function sendToSpreadsheet(barcode) {
+            fetch("https://script.google.com/macros/s/AKfycbyEVVqesXsB19IBztmYq-KOxZV5AJNAgEySoKhE2G5M-WbI2gmOBE0yHa3HK_XGVFhDPg/exec" + barcode)
+                .then(response => console.log("Data terkirim ke spreadsheet"))
+                .catch(error => console.error("Gagal mengirim data", error));
+        }
+    </script>
+</body>
+</html>

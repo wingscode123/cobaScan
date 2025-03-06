@@ -1,32 +1,31 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-    <title>Barcode Scanner</title>
-    <script src="https://serratus.github.io/quaggaJS/examples/js/quagga.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Barcode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
-<body>
-    <h2>Scan Barcode</h2>
-    <video id="scanner" autoplay></video>
-    <p>Hasil: <span id="barcode-result"></span></p>
-
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center w-96">
+        <h1 class="text-2xl font-bold mb-4">Scan Barcode</h1>
+        <div id="reader" class="mb-4"></div>
+        <p class="font-semibold">Hasil:</p>
+        <p id="result" class="text-blue-500 font-bold mt-2"></p>
+    </div>
+    
     <script>
-        Quagga.init({
-            inputStream: { type: "LiveStream", target: document.querySelector("#scanner") },
-            decoder: { readers: ["ean_reader", "code_128_reader"] } // Sesuaikan dengan jenis barcode
-        }, function(err) {
-            if (!err) Quagga.start();
-        });
-
-        Quagga.onDetected(function(result) {
-            document.querySelector("#barcode-result").innerText = result.codeResult.code;
-            sendToSpreadsheet(result.codeResult.code); // Kirim ke spreadsheet
-        });
-
-        function sendToSpreadsheet(barcode) {
-            fetch("https://script.google.com/macros/s/AKfycbyEVVqesXsB19IBztmYq-KOxZV5AJNAgEySoKhE2G5M-WbI2gmOBE0yHa3HK_XGVFhDPg/exec" + barcode)
-                .then(response => console.log("Data terkirim ke spreadsheet"))
-                .catch(error => console.error("Gagal mengirim data", error));
+        function onScanSuccess(decodedText, decodedResult) {
+            document.getElementById('result').innerText = decodedText;
         }
+        function onScanFailure(error) {
+            console.warn(`Scan error: ${error}`);
+        }
+        let html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader", { fps: 10, qrbox: 250 }
+        );
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
     </script>
 </body>
 </html>

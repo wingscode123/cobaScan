@@ -25,18 +25,15 @@
     </div>
 
     <script>
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxy4hZrrTK6ofWor0hbllQ-c98JI-27rrVqWH1854VTmkn_-MnjUja_emCkbmRQDi3cLA/exec"; // Ganti dengan link Apps Script
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxO1N2U8jTWE8VxCCNgybJmBaF72wi6AkMcqyM7tqRipZwIS0R_da8ZGwDv1nq837Wf1w/exec";
 
-        // Kirim data ke Google Sheets menggunakan metode POST
         function sendToGoogleSheet(barcode) {
-            fetch(GOOGLE_SHEET_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ kode: barcode }) // Hanya kirim kode barang
+            fetch(`${GOOGLE_SHEET_URL}?callback=handleResponse&kode=${barcode}`, {
+                method: "GET",
+                mode: "no-cors"
             })
-            .then(response => response.text())
-            .then(result => console.log("Google Sheet Update:", result))
-            .catch(error => console.error("Error:", error));
+            .then(response => console.log("Data terkirim ke Google Sheet:"))
+            .catch(error => console.error("Gagal mengirim data:", error));
         }
 
         function onScanSuccess(decodedText) {
@@ -48,7 +45,6 @@
             console.warn(`Scan error: ${error}`);
         }
 
-        // 🔥 Jalankan live scanner
         const html5QrcodeScanner = new Html5Qrcode("reader");
         html5QrcodeScanner.start(
             { facingMode: "environment" },
@@ -57,7 +53,6 @@
             onScanFailure
         ).catch(err => console.error("Error membuka kamera:", err));
 
-        // 📸 Upload dan scan QR dari gambar
         function scanImage() {
             const fileInput = document.getElementById("qr-file");
             if (fileInput.files.length === 0) {
@@ -66,7 +61,6 @@
             }
 
             const file = fileInput.files[0];
-
             const html5QrCode = new Html5Qrcode("reader");
             html5QrCode.scanFile(file, false)
                 .then(decodedText => {

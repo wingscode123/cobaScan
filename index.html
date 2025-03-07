@@ -25,14 +25,14 @@
     </div>
 
     <script>
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycby4on4atbdva06KVJL_VG36Ti6EKd7VSywlwZlSuRTPlvEKfSE-i4Wgkn17hTySTcOg/exec"; // Ganti dengan URL Apps Script
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxy4hZrrTK6ofWor0hbllQ-c98JI-27rrVqWH1854VTmkn_-MnjUja_emCkbmRQDi3cLA/exec"; // Ganti dengan link Apps Script
 
         // Kirim data ke Google Sheets menggunakan metode POST
         function sendToGoogleSheet(barcode) {
             fetch(GOOGLE_SHEET_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ barcode: barcode })
+                body: JSON.stringify({ kode: barcode }) // Hanya kirim kode barang
             })
             .then(response => response.text())
             .then(result => console.log("Google Sheet Update:", result))
